@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>作品 2 · 企业知识库准确率对照实验报告</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+background:#f5f6f8;color:#1a1d21;line-height:1.7;padding:16px;max-width:820px;margin:0 auto}
+h1{font-size:22px;margin-bottom:6px;line-height:1.4}
+.sub{color:#6b7280;font-size:13px;margin-bottom:20px}
+h2{font-size:17px;margin:26px 0 12px;padding-left:10px;border-left:4px solid #2563eb;line-height:1.4}
+.card{background:#fff;border-radius:10px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.quote{background:#eef4ff;border-left:4px solid #2563eb;padding:12px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:14px}
+.warn{background:#fff7ed;border-left:4px solid #ea580c;padding:12px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:14px}
+.good{background:#f0fdf4;border-left:4px solid #16a34a;padding:12px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+th{background:#f3f4f6;padding:8px 6px;text-align:left;font-weight:600;border-bottom:2px solid #e5e7eb}
+td{padding:7px 6px;border-bottom:1px solid #f0f0f0;vertical-align:top}
+tr:last-child td{border-bottom:none}
+.num{text-align:center;font-variant-numeric:tabular-nums}
+.up{color:#dc2626;font-weight:600}
+.same{color:#6b7280}
+.down{color:#16a34a;font-weight:600}
+.tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:4px;margin-right:4px}
+.tA{background:#dbeafe;color:#1e40af}
+.tB{background:#e0e7ff;color:#4338ca}
+.tC{background:#fee2e2;color:#991b1b}
+.tD{background:#dcfce7;color:#166534}
+.kv{font-size:13px;color:#4b5563}
+.kv b{color:#111827}
+ul{margin:8px 0 8px 20px;font-size:14px}
+li{margin-bottom:5px}
+code{background:#f3f4f6;padding:1px 5px;border-radius:3px;font-size:12.5px;font-family:Consolas,Monaco,monospace}
+.foot{margin-top:28px;padding-top:14px;border-top:1px solid #e5e7eb;font-size:12px;color:#9ca3af}
+.mono{font-family:Consolas,Monaco,monospace;font-size:12.5px;background:#f9fafb;padding:10px;border-radius:6px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;line-height:1.6}
+.bad{color:#dc2626;font-weight:600}
+.ok{color:#16a34a;font-weight:600}
+</style>
+</head>
+<body>
+
+<h1>企业知识库准确率对照实验</h1>
+<div class="sub">作品 2 · 马华通 · 2026-09-28 · 语料 12 份上市公司公开制度 / 141 页 / 约 9.9 万字 · 20 题 × 3 组 × 2 轮 = 120 次问答</div>
+
+<div class="card">
+<h2 style="margin-top:0;border:none;padding:0">一句话结论</h2>
+<div class="quote">
+<b>默认配置下，知识库最危险的问题不是"瞎编"，而是"把别家的规定当自家的"——而且这个问题<span class="bad">调提示词没用</span>，必须在检索层隔离。</b><br><br>
+实验数据：只优化提示词与检索参数，总分 <b>67.5% → 67.5%（纹丝不动）</b>；在检索层加了主体过滤后，陷阱类问题准确率 <b>20% → 80%</b>，总分升至 <b>87.5%</b>。
+</div>
+</div>
+
+<h2>一、实验怎么设计的</h2>
+<div class="card">
+<p class="kv">语料是 12 份<b>上市公司公开披露的内部制度</b>（巨潮资讯网，证监会指定平台），结构是 <b>8 + 2 + 2</b>：</p>
+<ul>
+<li><b>A 组 · 百川畅银（300614）8 份</b> —— 提问主体，也就是"本公司"</li>
+<li><b>B 组 · 嘉益股份（301004）2 份</b> + <b>C 组 · 西宁特钢（600117）2 份</b> —— 同名制度的<b>别家版本</b></li>
+</ul>
+<div class="warn">
+<b>关键设计：故意把别家的制度混进同一个库。</b>真实企业知识库就是这样——并购来的子公司制度、旧版制度、网上下载的模板全堆在一起。如果只用一家公司的文件，题目太好答，优化前后拉不开差距。
+</div>
+<p class="kv" style="margin-top:10px">20 道题分四类，答案逐条经脚本比对原文后才启用（<b>这一步拦下了我自己出的 2 道错题</b>）：</p>
+<table>
+<tr><th>类别</th><th class="num">题数</th><th>测什么</th></tr>
+<tr><td><span class="tag tA">A</span>直接事实</td><td class="num">8</td><td>能不能找到一条明确条款</td></tr>
+<tr><td><span class="tag tB">B</span>跨文档综合</td><td class="num">4</td><td>能不能把散在多份文件里的信息拼起来</td></tr>
+<tr><td><span class="tag tC">C</span>边界陷阱</td><td class="num">5</td><td>本公司没规定的事，会不会拿别家的来填</td></tr>
+<tr><td><span class="tag tD">D</span>应拒答</td><td class="num">3</td><td>库里没有的东西，会不会一本正经地编</td></tr>
+</table>
+</div>
+
+<h2>二、三个组差在哪</h2>
+<div class="card">
+<table>
+<tr><th>组别</th><th>分块</th><th>检索</th><th>提示词</th></tr>
+<tr><td><b>KB-A</b><br>基线</td><td>固定 500 字切</td><td>纯向量 TopK=3</td><td>最简版（无约束）</td></tr>
+<tr><td><b>KB-B</b><br>优化</td><td>父子分块（按"第X条"切）</td><td>向量+BM25 混合 → Rerank → 3</td><td>结构化版（含主体识别 + 禁止编造）</td></tr>
+<tr><td><b>KB-C</b><br>过滤</td><td>同 KB-B</td><td>同 KB-B <b>+ 检索层只允许本公司文档</b></td><td>同 KB-B（一字不改）</td></tr>
+</table>
+<div class="good">
+<b>KB-C 与 KB-B 只差一个变量</b>——检索时把别家文档排除掉。提示词、分块、Rerank 全部一致，所以提升能干净地归因到"主体过滤"这一项上。
+</div>
+</div>
+
+<h2>三、结果：总分打平，但暗流汹涌</h2>
+<div class="card">
+<table>
+<tr><th>类别</th><th class="num">题数</th><th class="num">A 基线</th><th class="num">B 优化</th><th class="num">C 过滤</th></tr>
+<tr><td><span class="tag tA">A</span>直接事实</td><td class="num">8</td><td class="num">100%</td><td class="num"><span class="down">87.5%</span></td><td class="num">100%</td></tr>
+<tr><td><span class="tag tB">B</span>跨文档综合</td><td class="num">4</td><td class="num">37.5%</td><td class="num"><span class="up">50%</span></td><td class="num"><span class="up">62.5%</span></td></tr>
+<tr><td><span class="tag tC">C</span>边界陷阱</td><td class="num">5</td><td class="num">20%</td><td class="num"><span class="up">30%</span></td><td class="num"><span class="up">80%</span></td></tr>
+<tr><td><span class="tag tD">D</span>应拒答</td><td class="num">3</td><td class="num">100%</td><td class="num">100%</td><td class="num">100%</td></tr>
+<tr style="background:#f9fafb"><td><b>合计</b></td><td class="num"><b>20</b></td><td class="num"><b>67.5%</b></td><td class="num"><b>67.5%</b></td><td class="num"><b>87.5%</b></td></tr>
+</table>
+
+<div class="warn">
+<b>第一次看这张表会懵：优化了一整套参数和提示词，总分居然一点没变。</b><br><br>
+拆开看就清楚了——优化<b>修好一处、弄坏一处</b>：<br>
+• <span class="ok">修好的</span>：B 类跨文档综合 37.5% → 50%（Q12 从"答成提交股东会"纠正为"总经理办公会议"）<br>
+• <span class="bad">弄坏的</span>：<b>Q04 从答对变成拒答</b>——提示词里"禁止猜测"写得太狠，模型遇到有答案的题也不敢答了（<b>over-refusal，过度拒答</b>）<br>
+• <span class="bad">没解决的</span>：<b>C 类陷阱题只从 20% 挪到 30%</b>，几乎没动
+</div>
+</div>
+
+<h2>四、根因：为什么提示词救不了"张冠李戴"</h2>
+<div class="card">
+<p class="kv">看一个真实例子（Q16 · 证券投资操作人员要求）：</p>
+<div class="mono"><b>问题</b>：公司进行证券投资时，对操作人员有什么要求？
+<b>正确</b>：百川畅银没规定。（"至少两名人员联名签字"是西宁特钢的规定，不适用）
+
+<span class="bad">【A 组】</span>根据资料中的规定，进行证券投资时，必须执行严格的
+          联合控制制度，即至少要由两名人员参与操作。
+
+<span class="bad">【B 组】</span>依据《<span class="bad">河南百川畅银环保能源股份有限公司</span>对外投资
+          管理制度》第十一条款，涉及证券投资的，必须执行严格的联合
+          控制制度，即至少要由两名人员参与操作……两人联名签字。
+
+<span class="ok">【C 组】</span>依据现有制度资料无法回答该问题。参考的制度文件中未涉及
+          对公司进行证券投资时操作人员的具体要求。</div>
+<div class="warn" style="margin-top:12px">
+<b>B 组比 A 组更危险。</b>A 组只是把别家的话复述了一遍；<b>B 组还给这句别家的话安上了本公司的制度名和条款号</b>。用户拿着这条去执行，会以为它是有出处的规定——错得更有说服力，也更难被发现。
+</div>
+<p class="kv" style="margin-top:12px"><b>为什么提示词没用？</b>KB-B 的提示词里明明写了"若检索到的内容不属于本公司，不得作为答案依据"。但：</p>
+<ul>
+<li>检索阶段已经把西宁特钢的文档<b>塞进了上下文</b>，模型看到的就是"资料里写了"</li>
+<li>上下文里的文档块<b>只标了编号（如 [C11]），没标公司名</b>，模型根本分不清这是谁家的</li>
+<li>生成阶段再怎么约束，也只是让模型在"已经污染的输入"上作答</li>
+</ul>
+<div class="quote">
+<b>结论：这是检索层的问题，不是生成层的问题。</b>把别家文档拦在检索门外（KB-C），比在提示词里喊一百遍"不要引用别家"都管用。
+</div>
+</div>
+
+<h2>五、逐题明细</h2>
+<div class="card">
+<table>
+<tr><th>题</th><th class="num">A</th><th class="num">B</th><th class="num">C</th><th>说明</th></tr>
+<tr><td><span class="tag tA">A</span>Q01-Q03</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td>直接事实，三组全对</td></tr>
+<tr><td><span class="tag tA">A</span>Q04</td><td class="num">1</td><td class="num"><span class="down">0</span></td><td class="num">1</td><td><b>B 组过度拒答</b>：资料里明明有"孰高"条款</td></tr>
+<tr><td><span class="tag tA">A</span>Q05-Q08</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td>直接事实，三组全对</td></tr>
+<tr><td><span class="tag tB">B</span>Q09</td><td class="num">0.5</td><td class="num">0.5</td><td class="num">0.5</td><td>三组都只答出 2/6 要点，漏掉反担保、回避表决等</td></tr>
+<tr><td><span class="tag tB">B</span>Q10</td><td class="num">0</td><td class="num">0</td><td class="num"><span class="up">0.5</span></td><td>C 组答出"视同公司发生的重大事项"</td></tr>
+<tr><td><span class="tag tB">B</span>Q11</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td>委托理财双标准，三组都对</td></tr>
+<tr><td><span class="tag tB">B</span>Q12</td><td class="num"><span class="bad">0</span></td><td class="num"><span class="up">0.5</span></td><td class="num">0.5</td><td><b>A 组张冠李戴</b>答"提交股东会"（嘉益口径）</td></tr>
+<tr><td><span class="tag tC">C</span>Q13</td><td class="num"><span class="bad">0</span></td><td class="num">0.5</td><td class="num">0.5</td><td><b>A 组引嘉益条款还自行推断"最近一年"</b>（张冠李戴+编造）</td></tr>
+<tr><td><span class="tag tC">C</span>Q14</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td>三组都躲开了西宁特钢陷阱</td></tr>
+<tr><td><span class="tag tC">C</span>Q15</td><td class="num"><span class="bad">0</span></td><td class="num"><span class="bad">0</span></td><td class="num"><span class="up">1</span></td><td><b>A/B 都答"披露后提交股东会"</b>（嘉益口径）；C 组正确答"未单独规定，适用一般标准"</td></tr>
+<tr><td><span class="tag tC">C</span>Q16</td><td class="num"><span class="bad">0</span></td><td class="num"><span class="bad">0</span></td><td class="num"><span class="up">1</span></td><td><b>A/B 都答西宁特钢口径</b>，B 组还安了本公司制度名；C 组正确</td></tr>
+<tr><td><span class="tag tC">C</span>Q17</td><td class="num"><span class="bad">0</span></td><td class="num"><span class="bad">0</span></td><td class="num"><span class="up">0.5</span></td><td><b>A/B 都答"10日内"</b>（嘉益口径）；C 组拒答未踩坑</td></tr>
+<tr><td><span class="tag tD">D</span>Q18-Q20</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td>拒答类三组全对（年休假、五险一金、营收数据）</td></tr>
+<tr style="background:#f9fafb"><td><b>得分</b></td><td class="num"><b>13.5</b></td><td class="num"><b>13.5</b></td><td class="num"><b>17.5</b></td><td>满分 20</td></tr>
+</table>
+</div>
+
+<h2>六、这份实验说明了什么</h2>
+<div class="card">
+<h3 style="margin-top:0">1. "不要瞎编"是最容易解决的一类问题</h3>
+<p class="kv">D 类（应拒答）<b>基线组就是 100%</b>——哪怕用最简陋的配置，模型也不会凭空编造经营数据。所以"防幻觉"不是知识库落地的难点，<b>"跨主体污染"才是</b>。</p>
+
+<h3>2. 检索层的元数据隔离，性价比远高于调提示词</h3>
+<p class="kv">一个变量（按主体过滤文档）带来 +20 分总分提升，而一整套提示词+参数优化带来的是 0。企业知识库落地时，<b>先给每份文档打上"属于谁、属于哪个时期、是否有效"的标签，比什么都重要</b>。</p>
+
+<h3>3. "禁止编造"写太狠会付出代价</h3>
+<p class="kv">KB-B 的 Q04 从答对变成拒答，就是过度约束的副作用。<b>安全性和可用性是一对矛盾</b>，得靠测试找到平衡点——这也是为什么要做对照实验，而不是拍脑袋调提示词。</p>
+
+<h3>4. 量化之前，先保证答案本身是对的</h3>
+<p class="kv">出题阶段我用脚本逐条比对原文，<b>拦下了 2 道我自己出的错题</b>（一道我误以为原文没有"配偶"二字，一道我把别家的条款写进了答案）。如果拿错题去测，"准确率"就是个自欺欺人的数字。</p>
+</div>
+
+<h2>七、诚实声明（局限）</h2>
+<div class="card">
+<ul>
+<li><b>样本量小</b>：20 题 × 2 轮，单题差异有偶然性。结论方向可信，具体百分点不宜过度解读。</li>
+<li><b>判分是人工的</b>：我写了自动初判脚本辅助，但它有 bug（漏传判分要点，导致 A/B 类全判 0 分；D 类又误把题干里的"2026年"当成编造痕迹），最终 60 条回答全部由我逐条比对参考答案判定。<b>判分口径已在 manual_scores.json 中逐题写明，可复核。</b></li>
+<li><b>KB-C 的过滤条件是"上帝视角"</b>：我知道哪些文档属于本公司。真实场景里这个标签要靠人工维护或文档解析自动抽取——<b>这本身就是个待解决的问题</b>。</li>
+<li><b>只测了中文制度类文档</b>：条款清晰、结构规整。换成会议纪要、聊天记录这类非结构化文本，结论未必成立。</li>
+<li><b>模型与成本</b>：Embedding 用 bge-m3、Rerank 用 bge-reranker-v2-m3、生成用 Qwen2.5-7B-Instruct，temperature=0。换模型结果会变。</li>
+</ul>
+</div>
+
+<div class="foot">
+数据文件：<code>results.json</code>（120 条回答原文）<br>
+判分依据：<code>manual_scores.json</code>（逐题得分与理由）<br>
+可复现：<code>run_experiment.py</code> / <code>score.py</code> / <code>questions.json</code><br>
+马华通 · 2026-09-28
+</div>
+
+</body>
+</html>
